@@ -22,15 +22,16 @@ namespace label_element_from_background_worker
                 // Get a fresh cancellation token source.
                 _cts?.Cancel();
                 _cts = new CancellationTokenSource();
-                // Get notified when any property changes in CustomDoWorkEventArgs
+                // Get notified when any property changes in CustomDoWorkEventArgs.
                 var customDoWorkEventArgs = new CustomDoWorkEventArgs("Hello", _cts.Token);
                 customDoWorkEventArgs.PropertyChanged += (sender, e) =>
                 {
                     switch (e.PropertyName)
                     {
                         case nameof(CustomDoWorkEventArgs.Result):
+                            // Marshal this action onto the UI thread as before. 
                             Invoke((MethodInvoker)delegate { 
-                                label1.Text = $"{customDoWorkEventArgs.Result}"; });
+                                myLabel.Text = $"{customDoWorkEventArgs.Result}"; });
                             break;
                     }
                 };

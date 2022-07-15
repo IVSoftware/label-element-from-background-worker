@@ -29,20 +29,20 @@ namespace label_element_from_background_worker
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
+            this.myLabel = new System.Windows.Forms.Label();
             this.checkBoxDoWork = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.label1.Location = new System.Drawing.Point(166, 21);
-            this.label1.Name = "label1";
-            this.label1.Padding = new System.Windows.Forms.Padding(3);
-            this.label1.Size = new System.Drawing.Size(151, 31);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "No Result";
+            this.myLabel.AutoSize = true;
+            this.myLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.myLabel.Location = new System.Drawing.Point(166, 21);
+            this.myLabel.Name = "label1";
+            this.myLabel.Padding = new System.Windows.Forms.Padding(3);
+            this.myLabel.Size = new System.Drawing.Size(151, 31);
+            this.myLabel.TabIndex = 0;
+            this.myLabel.Text = "No Result";
             // 
             // checkBoxDoWork
             // 
@@ -60,7 +60,7 @@ namespace label_element_from_background_worker
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.checkBoxDoWork);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.myLabel);
             this.Name = "BasicControl";
             this.Size = new System.Drawing.Size(457, 86);
             this.ResumeLayout(false);
@@ -70,7 +70,7 @@ namespace label_element_from_background_worker
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label myLabel;
         private System.Windows.Forms.CheckBox checkBoxDoWork;
     }
 }
