@@ -44,7 +44,7 @@ namespace label_element_from_background_worker
         private async void bw_DoWork(object sender, CustomDoWorkEventArgs customDoWorkEventArgs)
         {
             var moc = new MyOtherClass();
-            while (true)
+            while (!customDoWorkEventArgs.Token.IsCancellationRequested)
             {
                 // For example, we could set the `Result` property 
                 // using the return value of myMethod()
