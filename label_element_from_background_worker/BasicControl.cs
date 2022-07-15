@@ -29,7 +29,8 @@ namespace label_element_from_background_worker
                     switch (e.PropertyName)
                     {
                         case nameof(CustomDoWorkEventArgs.Result):
-                            // Marshal this action onto the UI thread as before. 
+                            // Set text or perform other actions on other bound properties.
+                            // Marshal any UI action onto the UI thread as before. 
                             Invoke((MethodInvoker)delegate { 
                                 myLabel.Text = $"{customDoWorkEventArgs.Result}"; });
                             break;
