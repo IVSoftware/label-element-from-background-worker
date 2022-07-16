@@ -33,16 +33,17 @@ namespace label_element_from_background_worker
             this.checkBoxDoWork = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
-            // label1
+            // myLabel
             // 
             this.myLabel.AutoSize = true;
             this.myLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.myLabel.Location = new System.Drawing.Point(166, 21);
-            this.myLabel.Name = "label1";
+            this.myLabel.Font = new System.Drawing.Font("Arial Narrow", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.myLabel.Location = new System.Drawing.Point(140, 24);
+            this.myLabel.Name = "myLabel";
             this.myLabel.Padding = new System.Windows.Forms.Padding(3);
-            this.myLabel.Size = new System.Drawing.Size(151, 31);
+            this.myLabel.Size = new System.Drawing.Size(73, 26);
             this.myLabel.TabIndex = 0;
-            this.myLabel.Text = "No Result";
+            this.myLabel.Text = "No Message";
             // 
             // checkBoxDoWork
             // 

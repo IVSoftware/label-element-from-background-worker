@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace label_element_from_background_worker
 
         private void onCheckboxDoWorkCheckedChanged(object sender, EventArgs e)
         {
-            if(((CheckBox)sender).Checked)
+            if (((CheckBox)sender).Checked)
             {
                 // Get a fresh cancellation token source.
                 _cts?.Cancel();
@@ -28,47 +29,48 @@ namespace label_element_from_background_worker
                 {
                     switch (e.PropertyName)
                     {
-                        case nameof(CustomDoWorkEventArgs.Result):
-                            // Set text or perform other actions on other bound properties.
-                            // When necessary, marshal actions onto the UI thread as before. 
-                            Invoke((MethodInvoker)delegate { 
-                                myLabel.Text = $"{customDoWorkEventArgs.Result}"; });
+                        case nameof(CustomDoWorkEventArgs.Message):
+                            Invoke((MethodInvoker)delegate
+                            // When myMethod sets Message, change the label text.
+                            {  myLabel.Text = $"{customDoWorkEventArgs.Message}"; });
+                            break;
+                        case nameof(CustomDoWorkEventArgs.Count):
+                            // When the count increments, change the checkbox text.
+                            Invoke((MethodInvoker)delegate
+                            { checkBoxDoWork.Text = $"Count = {customDoWorkEventArgs.Count}"; });
                             break;
                     }
                 };
                 // Start background worker however you want to.
-                Task.Run(()=>bw_DoWork(sender, customDoWorkEventArgs), _cts.Token);
+                Task.Run(() => bw_DoWork(sender, customDoWorkEventArgs), _cts.Token);
             }
-            else _cts?.Cancel();
+            else
+            {
+                checkBoxDoWork.Text = "Do Work";
+                _cts?.Cancel();
+            }
         }
         CancellationTokenSource _cts = null;
 
-        private async void bw_DoWork(object sender, CustomDoWorkEventArgs customDoWorkEventArgs)
+        private async void bw_DoWork(object sender, CustomDoWorkEventArgs args)
         {
             var moc = new MyOtherClass();
-            while (!customDoWorkEventArgs.Token.IsCancellationRequested)
+            while (!args.Token.IsCancellationRequested) // Loop for testing
             {
-                // For example, we could set the `Result` property 
-                // using the return value of myMethod()
-                customDoWorkEventArgs.Result = moc.myMethod();
-                // A one-second delay for testing.
-                try
-                {
-                    await Task.Delay(1000, customDoWorkEventArgs.Token);
-                }
-                catch (TaskCanceledException)
-                {
-                    return;
-                }
+                args.Count ++;
+                string result = moc.myMethod(args); // Pass the args
+                try{ await Task.Delay(1000, args.Token); } 
+                catch (TaskCanceledException){ return;}
             }
         }
     }
 
     internal class MyOtherClass
     {
-        internal object myMethod()
+        internal string myMethod(CustomDoWorkEventArgs e)
         {
-            return DateTime.Now;
+            e.Message = $"THIS WORKS! @ {DateTime.Now} ";
+            return "Your result";
         }
     }
 
@@ -78,26 +80,31 @@ namespace label_element_from_background_worker
         {
             Token = token;
         }
-        // This class can have as many bindable properties
-        // as you need. This is one example:
-        public new object Result
+        // This class can have as many bindable properties as you need
+        string _message = string.Empty;
+        public string Message
         {
-            get =>base.Result;
-            set
-            {
-                if(!Equals(value, base.Result))
-                {
-                    base.Result = value;
-                    OnPropertyChanged();
-                }
-            }
+            get => _message;
+            set => SetProperty(ref _message, value);
+        }
+        int _count = 0;
+        public int Count
+        {
+            get => _count;
+            set => SetProperty(ref _count, value);
         }
         public CancellationToken Token { get; }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        protected bool SetProperty<T>( ref T backingStore, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (EqualityComparer<T>.Default.Equals(backingStore, value))  return false;
+            backingStore = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }
