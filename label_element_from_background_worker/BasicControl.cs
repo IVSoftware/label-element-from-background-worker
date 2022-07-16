@@ -24,25 +24,25 @@ namespace label_element_from_background_worker
                 _cts?.Cancel();
                 _cts = new CancellationTokenSource();
                 // Get notified when any property changes in CustomDoWorkEventArgs.
-                var customDoWorkEventArgs = new CustomDoWorkEventArgs("Hello", _cts.Token);
-                customDoWorkEventArgs.PropertyChanged += (sender, e) =>
+                var context = new CustomDoWorkContext(cancellationToken: _cts.Token);
+                context.PropertyChanged += (sender, e) =>
                 {
                     switch (e.PropertyName)
                     {
-                        case nameof(CustomDoWorkEventArgs.Message):
+                        case nameof(CustomDoWorkContext.Message):
                             Invoke((MethodInvoker)delegate
                             // When myMethod sets Message, change the label text.
-                            {  myLabel.Text = $"{customDoWorkEventArgs.Message}"; });
+                            {  myLabel.Text = $"{context.Message}"; });
                             break;
-                        case nameof(CustomDoWorkEventArgs.Count):
+                        case nameof(CustomDoWorkContext.Count):
                             // When the count increments, change the checkbox text.
                             Invoke((MethodInvoker)delegate
-                            { checkBoxDoWork.Text = $"Count = {customDoWorkEventArgs.Count}"; });
+                            { checkBoxDoWork.Text = $"Count = {context.Count}"; });
                             break;
                     }
                 };
                 // Start background worker however you want to.
-                Task.Run(() => bw_DoWork(sender, customDoWorkEventArgs), _cts.Token);
+                Task.Run(() => bw_DoWork(sender, args: new DoWorkEventArgs(argument: context)));
             }
             else
             {
@@ -52,33 +52,40 @@ namespace label_element_from_background_worker
         }
         CancellationTokenSource _cts = null;
 
-        private async void bw_DoWork(object sender, CustomDoWorkEventArgs args)
+        private async void bw_DoWork(object sender, DoWorkEventArgs args)
         {
             var moc = new MyOtherClass();
-            while (!args.Token.IsCancellationRequested) // Loop for testing
+            if (args.Argument is CustomDoWorkContext context)
             {
-                args.Count ++;
-                string result = moc.myMethod(args); // Pass the args
-                try{ await Task.Delay(1000, args.Token); } 
-                catch (TaskCanceledException){ return;}
+                args.Cancel = context.Token.IsCancellationRequested;
+                while (!args.Cancel) // Loop for testing
+                {
+                    context.Count++;
+                    string result = moc.myMethod(args); // Pass the args
+                    try { await Task.Delay(1000, context.Token); }
+                    catch (TaskCanceledException) { return; }
+                }
             }
         }
     }
 
     internal class MyOtherClass
     {
-        internal string myMethod(CustomDoWorkEventArgs e)
+        internal string myMethod(DoWorkEventArgs args)
         {
-            e.Message = $"THIS WORKS! @ {DateTime.Now} ";
+            if (args.Argument is CustomDoWorkContext context)
+            {
+                context.Message = $"THIS WORKS! @ {DateTime.Now} ";
+            }
             return "Your result";
         }
     }
 
-    class CustomDoWorkEventArgs : DoWorkEventArgs , INotifyPropertyChanged
+    class CustomDoWorkContext : INotifyPropertyChanged
     {
-        public CustomDoWorkEventArgs(object argument, CancellationToken token) : base(argument)
+        public CustomDoWorkContext(CancellationToken cancellationToken)
         {
-            Token = token;
+            Token = cancellationToken;
         }
         // This class can have as many bindable properties as you need
         string _message = string.Empty;
