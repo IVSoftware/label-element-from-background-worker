@@ -41,7 +41,8 @@ namespace label_element_from_background_worker
                             break;
                     }
                 };
-                // Start background worker however you want to.
+                // Set the `Argument` property when you start the worker.                
+                // (Like this or something similar.)
                 Task.Run(() => bw_DoWork(sender, args: new DoWorkEventArgs(argument: context)));
             }
             else
